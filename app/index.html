@@ -4,38 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevOps Project 1</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .container {
-            text-align: center;
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #333;
-            margin: 0 0 20px 0;
-        }
-        p {
-            color: #666;
-            font-size: 18px;
-        }
-    </style>
+
+    <!-- Link external CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>DevOps Project 1</h1>
-        <p>✅ CI-CD Pipeline is working!</p>
-        <p>This app is deployed automatically: from v2</p>
+        <h1 id="title">DevOps Project 1</h1>
+        <p>✅ CI/CD Pipeline is working!</p>
+        <p id="version">This app is deployed automatically</p>
+
+        <button onclick="updateText()">Check Deployment</button>
     </div>
+
+    <!-- Link JS -->
+    <script src="script.js"></script>
 </body>
 </html>
