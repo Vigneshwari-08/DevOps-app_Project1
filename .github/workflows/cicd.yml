@@ -43,7 +43,5 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
-          docker stop devops-app || true
-          docker rm devops-app || true
-          docker run -d -p 80:80 --name devops-app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+          chmod +x deploy.sh
+          ./deploy.sh ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
