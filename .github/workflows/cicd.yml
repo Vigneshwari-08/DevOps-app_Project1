@@ -43,7 +43,25 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-           docker pull ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
-           docker stop devops-app || true
-           docker rm devops-app || true
-           docker run -d -p 80:80 --name devops-app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+          IMAGE=${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+
+          echo "Pull latest image"
+          docker pull $IMAGE
+
+          echo "Run new container on port 8080"
+          docker run -d -p 8080:80 --name devops-app-new $IMAGE
+
+          echo "Wait for container to be ready"
+          sleep 5
+
+          echo "Stopping old container"
+          docker stop devops-app || true
+          docker rm devops-app || true
+
+          echo "Switching new container to port 80"
+          docker stop devops-app-new
+          docker rm devops-app-new
+          docker run -d -p 80:80 --name devops-app $IMAGE
+
+          echo "Cleanup"
+          docker image prune -f
