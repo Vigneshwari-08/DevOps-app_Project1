@@ -7,206 +7,133 @@
 
 ---
 
-## 📌 Overview
+## Overview
 
-This project demonstrates a **complete end-to-end CI/CD pipeline** that automatically builds, pushes, and deploys a containerized web application to an AWS EC2 instance.
-
-It simulates a **real-world DevOps workflow**, eliminating manual deployment and ensuring consistency across environments.
+This project deploys a simple web app to an AWS EC2 instance automatically every time code is pushed to the `main` branch. No manual steps needed after the initial setup.
 
 ---
 
-## 🎯 Objectives
-
-- ⚡ Automate deployments using CI/CD  
-- 🐳 Containerize applications with Docker  
-- 🔐 Secure credentials using GitHub Secrets  
-- 🧠 Solve cross-platform issues (ARM vs AMD64)  
-- ☁️ Deploy application to AWS EC2  
-
----
-
-# 🏗️ Architecture Diagram
-
-```mermaid
-flowchart LR
-    A[Developer Push Code] --> B[GitHub Repository]
-
-    B --> C[GitHub Actions Pipeline]
-
-    C --> D[Build Docker Image]
-    D --> E[Multi Arch Build AMD64 ARM64]
-
-    E --> F[Push to DockerHub]
-
-    F --> G[SSH to EC2]
-
-    G --> H[Pull Latest Image]
-    H --> I[Stop Old Container]
-    I --> J[Run New Container]
-
-    J --> K[Live Application on EC2]
+## Architecture Diagram
 
 ```
----
-
-
-## ⚙️ Tech Stack
-
-- **Version Control:** Git, GitHub
-- **CI/CD:** GitHub Actions
-- **Containerization:** Docker
-- **Cloud:** AWS EC2
-- **Web Server:** Nginx
-- **Frontend:** HTML, CSS, JavaScript
-
----
-
-## 🔄 CI/CD Pipeline Flow
-
-### 1️⃣ Code Push
-- Developer pushes code to GitHub (`main` branch)
-
-### 2️⃣ CI Phase (Build)
-- GitHub Actions triggers automatically
-- Docker image is built using **Docker Buildx**
-- Multi-architecture support (`amd64`, `arm64`)
-
-### 3️⃣ Push Phase
-- Image is pushed to DockerHub repository
-
-### 4️⃣ CD Phase (Deploy)
-- Pipeline connects to EC2 via SSH
-- Pulls latest image
-- Stops old container
-- Runs updated container
-
----
-
-## 🧠 Key Concepts Implemented
-
-### 🔹 Containerization
-Application is packaged using Docker to ensure consistency across environments.
-
----
-
-### 🔹 Multi-Architecture Support
-Handled ARM (local machine) vs AMD64 (EC2) issue using:
-
-```bash
-docker buildx build --platform linux/amd64,linux/arm64
+Developer
+    |
+    | git push
+    v
+GitHub Repository
+    |
+    | triggers
+    v
+GitHub Actions
+    |
+    |── Build Docker Image (multi-arch: amd64 + arm64)
+    |── Push to DockerHub
+    |
+    | SSH
+    v
+AWS EC2 Instance
+    |
+    |── Pull latest image
+    |── Stop old container
+    |── Start new container
+    |
+    v
+Live App (Nginx serving HTML/CSS/JS)
 ```
-###🔹 CI/CD Automation
-	•	No manual deployment
-	•	Fully automated workflow using GitHub Actions
 
-⸻
+---
 
-###🔹 Secure Secrets Management
+## Tech Stack
 
-Sensitive data stored in GitHub Secrets:
-	•	DockerHub credentials
-	•	EC2 SSH key
+| Tool | Purpose |
+|------|---------|
+| GitHub Actions | CI/CD automation |
+| Docker | Containerization |
+| Nginx | Web server |
+| AWS EC2 | Cloud hosting |
+| DockerHub | Image registry |
 
-⸻
+---
 
-###🔹 Remote Deployment
+## Project Structure
 
-Used SSH action to execute deployment commands on EC2.
-
-⸻
-```bash
-##📂 Project Structure
-project/
-│
+```
+DevOps-app_Project1/
 ├── app/
 │   ├── index.html
 │   ├── style.css
 │   └── script.js
-│
+├── .github/
+│   └── workflows/
+│       └── cicd.yml
 ├── Dockerfile
 ├── nginx.conf
-└── .github/
-    └── workflows/
-        └── cicd.yml
+└── deploy.sh
 ```
-🌐 Application Features
-	•	Simple web UI with styling
-	•	JavaScript-based interaction
-	•	Dynamic deployment verification
-	•	Responsive layout
 
-⸻
+---
 
-🚀 How to Run Locally
+## How to Run Locally
+
 ```bash
-# Build Docker image
+# Build the Docker image
 docker build -t devops-app .
 
-# Run container
+# Run the container
 docker run -d -p 80:80 devops-app
 ```
-☁️ Deployment
 
-Application is deployed on:
-	•	AWS EC2 instance
-	•	Docker container running Nginx
+Then open your browser at `http://localhost`.
 
-Access:http://<EC2-PUBLIC-IP>
+---
 
-🔥 Improvements & Future Enhancements
+## CI/CD Pipeline
 
-🔹 1. Zero-Downtime Deployment
+Every push to `main` triggers the following steps automatically:
 
-Implement Blue-Green deployment using reverse proxy.
+1. **Build** — Docker image is built with multi-arch support (`amd64` + `arm64`)
+2. **Push** — Image is pushed to DockerHub
+3. **Deploy** — Pipeline SSHs into EC2, pulls the latest image, and restarts the container
 
-⸻
+Secrets like DockerHub credentials and the EC2 SSH key are stored securely in GitHub Secrets.
 
-🔹 2. Kubernetes Deployment
+---
 
-Move from single EC2 to Kubernetes cluster (EKS/AKS).
+## What's Next
 
-⸻
+- [ ] Add a test stage before deployment
+- [ ] Set up monitoring with Prometheus & Grafana
+- [ ] Use Terraform to provision the EC2 infrastructure
+- [ ] Implement blue-green deployment for zero downtime
+- [ ] Add image vulnerability scanning in the pipeline
 
-🔹 3. Infrastructure as Code
+---
 
-Use Terraform to provision infrastructure.
+## Key Concepts
 
-⸻
+**Containerization**
+The app is packaged into a Docker image, so it runs the same way on any machine — no "works on my machine" problems.
 
-🔹 4. Monitoring & Logging
+**CI/CD Automation**
+GitHub Actions watches for code changes and handles the entire build-push-deploy flow automatically, removing the need for manual deployments.
 
-Integrate:
-	•	Prometheus
-	•	Grafana
+**Multi-Architecture Build**
+Using Docker Buildx, the image is built for both `amd64` (AWS EC2) and `arm64` (Apple Silicon / local dev), solving cross-platform issues.
 
-⸻
+**Secrets Management**
+Sensitive credentials (DockerHub token, EC2 SSH key) are stored in GitHub Secrets and never hardcoded in the codebase.
 
-🔹 5. CI/CD Enhancements
-	•	Add rollback strategy
-	•	Add test stage before deployment
-	•	Add image vulnerability scanning
+**Infrastructure on the Cloud**
+The app runs inside a Docker container on an AWS EC2 instance, making it easy to scale or move later.
 
-⸻
+---
 
-💡 Learnings
-	•	Real-world CI/CD pipeline implementation
-	•	Debugging Docker architecture issues
-	•	Secure automation practices
-	•	Cloud-based deployment strategies
+## Conclusion
 
-⸻
+This project covers the full journey from writing code to having it live on the internet — automatically. It demonstrates a real-world DevOps workflow that eliminates manual steps, keeps environments consistent, and lays the groundwork for more advanced practices like monitoring, IaC, and zero-downtime deployments in the future.
 
-📌 Conclusion
+---
 
-This project showcases a complete DevOps workflow, covering:
-	•	Code → Build → Deploy → Run
+## Author
 
-It demonstrates practical knowledge required for DevOps roles and reflects real-world deployment strategies.
-
-⸻
-
-👤 Author
-
-Vigneshwari
-
-DevOps & Cloud Enthusiast 🚀
+**Vigneshwari** — DevOps & Cloud Enthusiast
